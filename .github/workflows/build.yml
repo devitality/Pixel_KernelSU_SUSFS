@@ -136,6 +136,13 @@ jobs:
         echo "SUBLEVEL=$SUBLEVEL" >> $GITHUB_ENV
         echo "ANDROID_VERSION=$ANDROID_VERSION" >> $GITHUB_ENV
 
+        # FIX: matrix.codename/CODENAM are never set (bluejay.json matrix only has 'repo').
+        # Derive codename from the repo name, e.g. android-gs-bluejay-6.1-android16 -> bluejay.
+        CODENAME=$(echo "${{ inputs.repo }}" | sed -E 's/^android-gs-//; s/-[0-9].*$//')
+        echo "Derived CODENAME=$CODENAME from repo ${{ inputs.repo }}"
+        echo "CODENAME=$CODENAME" >> $GITHUB_ENV
+        echo "CODENAM=$CODENAME" >> $GITHUB_ENV
+
         FILE_NAME="$KERNEL_VERSION.$SUBLEVEL-$ANDROID_VERSION"
         echo "FILE_NAME=$FILE_NAME" >> $GITHUB_ENV
 
@@ -229,7 +236,9 @@ jobs:
         set -ex
         # Copy fragment to kernel tree for bazel
         cp "$GITHUB_WORKSPACE/wild_gki.fragment" aosp/arch/arm64/configs/wild_gki.fragment
-        build_${{ matrix.codename }}.sh --config=release --stamp --defconfig_fragment=//aosp:arch/arm64/configs/wild_gki.fragment || exit 1
+        echo "Available build scripts:"; ls -1 build_*.sh 2>/dev/null || ls -1 ./*.sh 2>/dev/null || true
+        # FIX: use derived $CODENAME (matrix.codename was always empty -> build_.sh not found)
+        ./build_${CODENAME}.sh --config=release --stamp --defconfig_fragment=//aosp:arch/arm64/configs/wild_gki.fragment || exit 1
 
     - name: Create Bootimgs Folder and Build Boot Images
       if: false
