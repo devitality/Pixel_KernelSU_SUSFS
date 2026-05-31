@@ -15,14 +15,14 @@ runs:
       shell: bash
       working-directory: ${{ github.workspace }}/kernel/aosp
       run: |
-        # Apply kernel branding based on version and variant
-        if [[ "${{ inputs.kernel_version }}" == "5."* ]] || [[ "${{ inputs.kernel_version }}" == "6.1" ]]; then
-          perl -i -0777 -pe 's/(.*)echo "\$res"/$1echo "\$res-Wild"/s' scripts/setlocalversion
-        else
-          perl -i -0777 -pe 's/(.*)echo "\$\{KERNELVERSION\}\$\{file_localversion\}\$\{config_localversion\}\$\{LOCALVERSION\}\$\{scm_version\}"/$1echo "\${KERNELVERSION}\${file_localversion}\${config_localversion}\${LOCALVERSION}-Wild\${scm_version}"/s' scripts/setlocalversion
-        fi
+        # STEALTH: do NOT append the "-Wild" marker — keep the version string genuine.
+        # (Original WildKernels branding patched scripts/setlocalversion to add -Wild; removed.)
 
-        : > .scmversion
+        # STEALTH: hardcode the EXACT genuine scmversion captured from this device's
+        # Google-signed vendor_dlkm vermagic (6.1.145-android14-11-gfa1d6308d1fe-ab14691759).
+        # setlocalversion's scm_version() returns the contents of .scmversion if present,
+        # so UTS_RELEASE becomes 6.1.145<config_localversion=-android14-11><scm=-gfa1d6308d1fe-ab14691759>.
+        echo "-gfa1d6308d1fe-ab14691759" > .scmversion
 
         echo "Getting last commit timestamp from kernel source..."
 
