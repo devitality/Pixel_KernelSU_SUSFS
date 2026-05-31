@@ -195,6 +195,7 @@ jobs:
         kernel_version: ${{ env.KERNEL_VERSION }}
 
     - name: Setup BBRv3
+      if: false  # disabled: bbr action has bad ${inputs..} bash substitution; BBR not needed for stealth goal
       uses: ./.github/actions/bbr
       with:
         kernel_version: ${{ env.KERNEL_VERSION }}
