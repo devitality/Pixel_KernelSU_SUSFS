@@ -18,6 +18,12 @@ runs:
         # STEALTH: do NOT append the "-Wild" marker — keep the version string genuine.
         # (Original WildKernels branding patched scripts/setlocalversion to add -Wild; removed.)
 
+        # STEALTH: this AOSP source is sublevel 6.1.124, but the target device ships 6.1.145
+        # (genuine vendor_dlkm vermagic 6.1.145-android14-11). Force SUBLEVEL=145 so UTS_RELEASE
+        # base matches the device exactly (KMI generation android14-11 is unchanged → GKI ABI-safe).
+        sed -i 's/^SUBLEVEL = .*/SUBLEVEL = 145/' Makefile
+        echo "Makefile version now: $(grep -E '^(VERSION|PATCHLEVEL|SUBLEVEL) =' Makefile | tr '\n' ' ')"
+
         # STEALTH: hardcode the EXACT genuine scmversion captured from this device's
         # Google-signed vendor_dlkm vermagic (6.1.145-android14-11-gfa1d6308d1fe-ab14691759).
         # setlocalversion's scm_version() returns the contents of .scmversion if present,
